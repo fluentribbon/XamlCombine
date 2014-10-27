@@ -8,6 +8,7 @@ namespace XamlCombine
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Reflection;
@@ -48,6 +49,8 @@ namespace XamlCombine
         /// <param name="args">Command line args.</param>
         private static void Main(string[] args)
         {
+            var stopwatch = Stopwatch.StartNew();
+
             // TODO: Add flags for some parameters.
             if (args.Length == 2)
             {
@@ -55,6 +58,14 @@ namespace XamlCombine
             }
 
             // TODO: Add help output.
+
+            stopwatch.Stop();
+            Console.WriteLine("Combine time: {0}", stopwatch.Elapsed);
+
+            if (Debugger.IsAttached)
+            {
+                Console.ReadLine();
+            }
         }
 
         /// <summary>
@@ -71,10 +82,10 @@ namespace XamlCombine
             // Write to console
             Console.WriteLine("Loading resources list from \"{0}\"", sourceFile);
 
-            if(!File.Exists(sourceFile))
+            if (!File.Exists(sourceFile))
             {
                 sourceFile = Path.Combine(appPath, sourceFile);
-                if(!File.Exists(sourceFile))
+                if (!File.Exists(sourceFile))
                 {
                     Console.WriteLine("Error: File not found.");
                     return;
@@ -84,7 +95,7 @@ namespace XamlCombine
             // Load resources lists
             string[] resources = File.ReadAllLines(sourceFile);
 
-            
+
             // Create result XML document
             XmlDocument finalDocument = new XmlDocument();
             XmlElement rootNode = finalDocument.CreateElement("ResourceDictionary", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
@@ -104,10 +115,10 @@ namespace XamlCombine
             {
                 XmlDocument current = new XmlDocument();
                 string file = resources[i];
-                if(!File.Exists(file))
+                if (!File.Exists(file))
                 {
                     file = Path.Combine(appPath, resources[i]);
-                    if(!File.Exists(file))
+                    if (!File.Exists(file))
                     {
                         Console.WriteLine("Error: Resource not found \"{0}\"", resources[0]);
                         return;
@@ -116,7 +127,7 @@ namespace XamlCombine
                 current.Load(file);
 
                 // Write to console
-                Console.WriteLine("Loading resource \"{0}\"", resources[i]);
+                //Console.WriteLine("Loading resource \"{0}\"", resources[i]);
 
                 // Set and fix resource dictionary attributes
                 XmlElement root = current.DocumentElement;
@@ -170,7 +181,7 @@ namespace XamlCombine
                         if (!isExist)
                         {
                             // Add namespace to result resource dictionarty
-                            XmlAttribute a = finalDocument.CreateAttribute(attr.Prefix, attr.LocalName,attr.NamespaceURI);
+                            XmlAttribute a = finalDocument.CreateAttribute(attr.Prefix, attr.LocalName, attr.NamespaceURI);
                             a.Value = attr.Value;
                             rootNode.Attributes.Append(a);
                         }
@@ -183,7 +194,7 @@ namespace XamlCombine
                     if ((node is XmlElement) && (node.Name != "ResourceDictionary.MergedDictionaries"))
                     {
                         // Import XML node from one XML document to result XML document                        
-                        XmlElement importedElement = finalDocument.ImportNode(node, true) as XmlElement;                        
+                        XmlElement importedElement = finalDocument.ImportNode(node, true) as XmlElement;
 
                         // Find resource key
                         // TODO: Is any other variants???
@@ -223,7 +234,7 @@ namespace XamlCombine
                     finalOrderList.Add(resourcesList[i]);
 
                     // Write to console
-                    Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
+                    //Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
 
                     resourcesList.RemoveAt(i);
                     i--;
@@ -250,9 +261,9 @@ namespace XamlCombine
                     if (containsAll)
                     {
                         finalOrderList.Add(resourcesList[i]);
-                        
+
                         // Write to console
-                        Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
+                        //Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
 
                         resourcesList.RemoveAt(i);
                         i--;
@@ -272,17 +283,35 @@ namespace XamlCombine
             Console.WriteLine("Resource Dictionary generation completed.");
 
             // Save result file
-            resultFile = Path.GetFullPath(resultFile);
+            resultFile = Path.Combine(appPath, resultFile);
             try
             {
-                finalDocument.Save(resultFile);
+                var tempFile = resultFile + ".tmp";
+                finalDocument.Save(tempFile);
+
+                Console.WriteLine("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile);
+
+                if (File.Exists(resultFile) == false
+                    || File.ReadAllText(resultFile) != File.ReadAllText(tempFile))
+                {
+                    File.Copy(tempFile, resultFile, true);
+
+                    Console.WriteLine("Resource Dictionary saved to \"{0}\".", resultFile);
+                }
+                else
+                {
+                    Console.WriteLine("New Resource Dictionary did not differ from existing file. No new file written.");
+                }
+
+                if (File.Exists(tempFile))
+                {
+                    File.Delete(tempFile);
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("Error during Resource Dictionary saving: {0}", e.Message));
-                return;
+                Console.WriteLine("Error during Resource Dictionary saving: {0} {1}", e.Message, e.StackTrace);
             }
-            Console.WriteLine(string.Format("Resource Dictionary saved to \"{0}\".", resultFile));
         }
 
         /// <summary>
@@ -349,7 +378,7 @@ namespace XamlCombine
         private static string[] FillKeys(XmlElement element)
         {
             // Result list
-            List<string> result = new List<string>();
+            var result = new List<string>();
 
             // Check all attributes
             foreach (XmlAttribute attr in element.Attributes)
@@ -357,28 +386,34 @@ namespace XamlCombine
                 if (attr.Value.StartsWith(DynamicResourceString))
                 {
                     // Find key
-                    string key = attr.Value.Substring(DynamicResourceString.Length, attr.Value.Length - DynamicResourceString.Length - 1).Trim();
-
-                    // Replace dynamic resource with static resource
-                    attr.Value = StaticResourceString + key + "}";
+                    var key = attr.Value.Substring(DynamicResourceString.Length, attr.Value.Length - DynamicResourceString.Length - 1).Trim();
 
                     // Add key to result
-                    if (!result.Contains(key)) result.Add(key);
+                    if (!result.Contains(key))
+                    {
+                        result.Add(key);
+                    }
                 }
                 else if (attr.Value.StartsWith(StaticResourceString))
                 {
                     // Find key
-                    string key = attr.Value.Substring(StaticResourceString.Length, attr.Value.Length - StaticResourceString.Length - 1).Trim();
+                    var key = attr.Value.Substring(StaticResourceString.Length, attr.Value.Length - StaticResourceString.Length - 1).Trim();
 
                     // Add key to result
-                    if (!result.Contains(key)) result.Add(key);
+                    if (!result.Contains(key))
+                    {
+                        result.Add(key);
+                    }
                 }
             }
 
             // Check child nodes
             foreach (XmlNode node in element.ChildNodes)
             {
-                if (node is XmlElement) result.AddRange(FillKeys(node as XmlElement));
+                if (node is XmlElement)
+                {
+                    result.AddRange(FillKeys(node as XmlElement));
+                }
             }
 
             return result.ToArray();
