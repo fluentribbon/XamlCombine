@@ -23,27 +23,6 @@ namespace XamlCombine
     internal class Program
     {
         /// <summary>
-        /// Represents XAML resource.
-        /// </summary>
-        private struct ResourceElement
-        {
-            /// <summary>
-            /// Resource name.
-            /// </summary>
-            public string Key;
-
-            /// <summary>
-            /// Resource XML node.
-            /// </summary>
-            public XmlElement Element;
-
-            /// <summary>
-            /// XAML keys used in this resource.
-            /// </summary>
-            public string[] UsedKeys;
-        }
-
-        /// <summary>
         /// Main function.
         /// </summary>
         /// <param name="args">Command line args.</param>
@@ -310,7 +289,7 @@ namespace XamlCombine
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error during Resource Dictionary saving: {0} {1}", e.Message, e.StackTrace);
+                Console.WriteLine("Error during Resource Dictionary saving: {0}", e);
             }
         }
 
@@ -330,10 +309,15 @@ namespace XamlCombine
 
             foreach (XmlNode child in element.ChildNodes)
             {
-                if (child is XmlElement)
+				var childElement = child as XmlElement;
+
+				if (childElement != null)
                 {
-                    XmlElement childElement = child as XmlElement;
-                    if (child.Prefix == oldPrefix) child.Prefix = newPrefix;
+					if (child.Prefix == oldPrefix)
+					{
+						child.Prefix = newPrefix;
+					}
+
                     foreach (XmlAttribute attr in childElement.Attributes)
                     {
                         // Check all attributes prefix
@@ -354,7 +338,7 @@ namespace XamlCombine
                         }
                     }
 
-                    // Chenge namespaces for child node
+                    // Change namespaces for child node
                     ChangeNamespacePrefix(childElement, oldPrefix, newPrefix);
                 }
             }
@@ -410,9 +394,10 @@ namespace XamlCombine
             // Check child nodes
             foreach (XmlNode node in element.ChildNodes)
             {
-                if (node is XmlElement)
+				var nodeElement = node as XmlElement;
+                if (nodeElement != null)
                 {
-                    result.AddRange(FillKeys(node as XmlElement));
+                    result.AddRange(FillKeys(nodeElement));
                 }
             }
 
