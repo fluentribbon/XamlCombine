@@ -166,10 +166,7 @@
 							keys.Add(key);
 
 							// Create ResourceElement for key and XML  node
-							ResourceElement res = new ResourceElement();
-							res.Key = key;
-							res.Element = importedElement;
-							res.UsedKeys = FillKeys(importedElement);
+							var res = new ResourceElement(key, importedElement, FillKeys(importedElement));
 							resourceElements.Add(key, res);
 							resourcesList.Add(res);
 						}
