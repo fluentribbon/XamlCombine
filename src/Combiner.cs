@@ -265,7 +265,7 @@
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error during Resource Dictionary saving: {0}", e);
+				throw new Exception("Error during Resource Dictionary saving: {0}", e);
 			}
 		}
 
@@ -288,7 +288,6 @@
 
 				if (File.Exists(filePath) == false)
 				{
-					Console.WriteLine("Error: File not found.");
 					throw new FileNotFoundException("Unable to find file.", file);
 				}
 			}
