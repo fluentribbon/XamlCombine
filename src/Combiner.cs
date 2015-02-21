@@ -18,7 +18,7 @@
 		{
 			// Current application path
 			// TODO: Need to support all types of paths not only relative.
-			string appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			// Write to console
 			Console.WriteLine("Loading resources list from \"{0}\"", sourceFile);
@@ -27,7 +27,7 @@
 			{
 				sourceFile = Path.Combine(appPath, sourceFile);
 
-				if (!File.Exists(sourceFile))
+				if (File.Exists(sourceFile) == false)
 				{
 					Console.WriteLine("Error: File not found.");
 					return;
@@ -35,31 +35,31 @@
 			}
 
 			// Load resources lists
-			string[] resources = File.ReadAllLines(sourceFile);
+			var resources = File.ReadAllLines(sourceFile);
 
 			// Create result XML document
-			XmlDocument finalDocument = new XmlDocument();
-			XmlElement rootNode = finalDocument.CreateElement("ResourceDictionary", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+			var finalDocument = new XmlDocument();
+			var rootNode = finalDocument.CreateElement("ResourceDictionary", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
 			finalDocument.AppendChild(rootNode);
 
 			// List of existing keys, to avoid duplicates
-			List<string> keys = new List<string>();
+			var keys = new List<string>();
 
 			// Associate key with ResourceElement
-			Dictionary<string, ResourceElement> resourceElements = new Dictionary<string, ResourceElement>();
+			var resourceElements = new Dictionary<string, ResourceElement>();
 
 			// List of readed resources
-			List<ResourceElement> resourcesList = new List<ResourceElement>();
+			var resourcesList = new List<ResourceElement>();
 
 			// For each resource file
-			for (int i = 0; i < resources.Length; i++)
+			for (var i = 0; i < resources.Length; i++)
 			{
-				XmlDocument current = new XmlDocument();
-				string file = resources[i];
-				if (!File.Exists(file))
+				var current = new XmlDocument();
+				var file = resources[i];
+				if (File.Exists(file) == false)
 				{
 					file = Path.Combine(appPath, resources[i]);
-					if (!File.Exists(file))
+					if (File.Exists(file) == false)
 					{
 						Console.WriteLine("Error: Resource not found \"{0}\"", resources[0]);
 						return;
@@ -71,18 +71,23 @@
 				//Console.WriteLine("Loading resource \"{0}\"", resources[i]);
 
 				// Set and fix resource dictionary attributes
-				XmlElement root = current.DocumentElement;
-				if (root == null) continue;
-				for (int j = 0; j < root.Attributes.Count; j++)
+				var root = current.DocumentElement;
+				if (root == null)
+				{
+					continue;
+				}
+
+				for (var j = 0; j < root.Attributes.Count; j++)
 				{
 					XmlAttribute attr = root.Attributes[j];
 					if (rootNode.HasAttribute(attr.Name))
 					{
 						// If namespace with this name exists and not equal
-						if ((attr.Value != rootNode.Attributes[attr.Name].Value) && (attr.Prefix == "xmlns"))
+						if (attr.Value != rootNode.Attributes[attr.Name].Value
+							&& attr.Prefix == "xmlns")
 						{
 							// Create new namespace name
-							int index = 0;
+							var index = 0;
 							string name;
 							do
 							{
@@ -103,7 +108,7 @@
 					}
 					else
 					{
-						bool isExist = false;
+						var exists = false;
 						if (attr.Prefix == "xmlns")
 						{
 							// Try to find equal namespace with different name
@@ -113,13 +118,13 @@
 								{
 									root.SetAttribute(attr.Name, attr.Value);
 									ChangeNamespacePrefix(root, attr.LocalName, attribute.LocalName);
-									isExist = true;
+									exists = true;
 									break;
 								}
 							}
 						}
 
-						if (!isExist)
+						if (exists == false)
 						{
 							// Add namespace to result resource dictionarty
 							XmlAttribute a = finalDocument.CreateAttribute(attr.Prefix, attr.LocalName, attr.NamespaceURI);
@@ -132,22 +137,36 @@
 				// Extract resources
 				foreach (XmlNode node in root.ChildNodes)
 				{
-					if ((node is XmlElement) && (node.Name != "ResourceDictionary.MergedDictionaries"))
+					if (node is XmlElement
+						&& node.Name != "ResourceDictionary.MergedDictionaries")
 					{
 						// Import XML node from one XML document to result XML document                        
 						XmlElement importedElement = finalDocument.ImportNode(node, true) as XmlElement;
 
 						// Find resource key
 						// TODO: Is any other variants???
-						string key = string.Empty;
-						if (importedElement.HasAttribute("Key")) key = importedElement.Attributes["Key"].Value;
-						else if (importedElement.HasAttribute("x:Key")) key = importedElement.Attributes["x:Key"].Value;
-						else if (importedElement.HasAttribute("TargetType")) key = importedElement.Attributes["TargetType"].Value;
+						var key = string.Empty;
+						if (importedElement.HasAttribute("Key"))
+						{
+							key = importedElement.Attributes["Key"].Value;
+						}
+						else if (importedElement.HasAttribute("x:Key"))
+						{
+							key = importedElement.Attributes["x:Key"].Value;
+						}
+						else if (importedElement.HasAttribute("TargetType"))
+						{
+							key = importedElement.Attributes["TargetType"].Value;
+						}
 
-						if (!string.IsNullOrEmpty(key))
+						if (string.IsNullOrEmpty(key) == false)
 						{
 							// Check key unique
-							if (keys.Contains(key)) continue;
+							if (keys.Contains(key))
+							{
+								continue;
+							}
+
 							keys.Add(key);
 
 							// Create ResourceElement for key and XML  node
@@ -165,10 +184,10 @@
 			}
 
 			// Result list 
-			List<ResourceElement> finalOrderList = new List<ResourceElement>();
+			var finalOrderList = new List<ResourceElement>();
 
 			// Add all items with empty UsedKeys
-			for (int i = 0; i < resourcesList.Count; i++)
+			for (var i = 0; i < resourcesList.Count; i++)
 			{
 				if (resourcesList[i].UsedKeys.Length == 0)
 				{
@@ -185,13 +204,14 @@
 			// Add other resources in correct order
 			while (resourcesList.Count > 0)
 			{
-				for (int i = 0; i < resourcesList.Count; i++)
+				for (var i = 0; i < resourcesList.Count; i++)
 				{
 					// Check used keys is in result list
-					bool containsAll = true;
-					for (int j = 0; j < resourcesList[i].UsedKeys.Length; j++)
+					var containsAll = true;
+					for (var j = 0; j < resourcesList[i].UsedKeys.Length; j++)
 					{
-						if (resourceElements.ContainsKey(resourcesList[i].UsedKeys[j]) && (!finalOrderList.Contains(resourceElements[resourcesList[i].UsedKeys[j]])))
+						if (resourceElements.ContainsKey(resourcesList[i].UsedKeys[j]) 
+							&& finalOrderList.Contains(resourceElements[resourcesList[i].UsedKeys[j]]) == false)
 						{
 							containsAll = false;
 							break;
@@ -215,7 +235,7 @@
 			}
 
 			// Add nodes to XML document
-			for (int i = 0; i < finalOrderList.Count; i++)
+			for (var i = 0; i < finalOrderList.Count; i++)
 			{
 				rootNode.AppendChild(finalOrderList[i].Element);
 			}
@@ -225,6 +245,7 @@
 
 			// Save result file
 			resultFile = Path.Combine(appPath, resultFile);
+
 			try
 			{
 				var tempFile = resultFile + ".tmp";
@@ -264,10 +285,10 @@
 		private static void ChangeNamespacePrefix(XmlElement element, string oldPrefix, string newPrefix)
 		{
 			// String for search
-			string oldString = oldPrefix + ":";
-			string newString = newPrefix + ":";
-			string oldStringSpaced = " " + oldString;
-			string newStringSpaced = " " + newString;
+			var oldString = oldPrefix + ":";
+			var newString = newPrefix + ":";
+			var oldStringSpaced = " " + oldString;
+			var newStringSpaced = " " + newString;
 
 			foreach (XmlNode child in element.ChildNodes)
 			{
@@ -287,14 +308,16 @@
 
 						// Check {x:Type {x:Static in attributes values
 						// TODO: Is any other???
-						if ((attr.Value.Contains("{x:Type") || attr.Value.Contains("{x:Static")) && attr.Value.Contains(oldStringSpaced))
+						if ((attr.Value.Contains("{x:Type") || attr.Value.Contains("{x:Static")) 
+							&& attr.Value.Contains(oldStringSpaced))
 						{
 							attr.Value = attr.Value.Replace(oldStringSpaced, newStringSpaced);
 						}
 
 						// Check Property attribute
 						// TODO: Is any other???
-						if ((attr.Name == "Property") && attr.Value.StartsWith(oldString))
+						if (attr.Name == "Property"
+							&& attr.Value.StartsWith(oldString))
 						{
 							attr.Value = attr.Value.Replace(oldString, newString);
 						}
@@ -335,7 +358,7 @@
 					var key = attr.Value.Substring(DynamicResourceString.Length, attr.Value.Length - DynamicResourceString.Length - 1).Trim();
 
 					// Add key to result
-					if (!result.Contains(key))
+					if (result.Contains(key) == false)
 					{
 						result.Add(key);
 					}
@@ -346,7 +369,7 @@
 					var key = attr.Value.Substring(StaticResourceString.Length, attr.Value.Length - StaticResourceString.Length - 1).Trim();
 
 					// Add key to result
-					if (!result.Contains(key))
+					if (result.Contains(key) == false)
 					{
 						result.Add(key);
 					}
