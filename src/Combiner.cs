@@ -10,29 +10,33 @@
 	public class Combiner
 	{
 		/// <summary>
+		/// Dynamic resource string.
+		/// </summary>
+		private const string DynamicResourceString = "{DynamicResource ";
+
+		/// <summary>
+		/// Static resource string.
+		/// </summary>
+		private const string StaticResourceString = "{StaticResource ";
+
+		private Lazy<string> appPath;
+
+		public Combiner()
+		{
+			this.appPath = new Lazy<string>(this.GetAppPath);
+		}
+
+		/// <summary>
 		/// Combines multiple XAML resource dictionaries in one.
 		/// </summary>
 		/// <param name="sourceFile">Filename of list of XAML's.</param>
 		/// <param name="resultFile">Result XAML filename.</param>
 		public void Combine(string sourceFile, string resultFile)
 		{
-			// Current application path
-			// TODO: Need to support all types of paths not only relative.
-			var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
 			// Write to console
 			Console.WriteLine("Loading resources list from \"{0}\"", sourceFile);
 
-			if (File.Exists(sourceFile) == false)
-			{
-				sourceFile = Path.Combine(appPath, sourceFile);
-
-				if (File.Exists(sourceFile) == false)
-				{
-					Console.WriteLine("Error: File not found.");
-					return;
-				}
-			}
+			sourceFile = this.GetFilePath(sourceFile);
 
 			// Load resources lists
 			var resources = File.ReadAllLines(sourceFile);
@@ -55,16 +59,8 @@
 			for (var i = 0; i < resources.Length; i++)
 			{
 				var current = new XmlDocument();
-				var file = resources[i];
-				if (File.Exists(file) == false)
-				{
-					file = Path.Combine(appPath, resources[i]);
-					if (File.Exists(file) == false)
-					{
-						Console.WriteLine("Error: Resource not found \"{0}\"", resources[0]);
-						return;
-					}
-				}
+				var file = this.GetFilePath(resources[i]);
+
 				current.Load(file);
 
 				// Write to console
@@ -244,7 +240,7 @@
 			Console.WriteLine("Resource Dictionary generation completed.");
 
 			// Save result file
-			resultFile = Path.Combine(appPath, resultFile);
+			resultFile = Path.Combine(appPath.Value, resultFile);
 
 			try
 			{
@@ -274,6 +270,33 @@
 			{
 				Console.WriteLine("Error during Resource Dictionary saving: {0}", e);
 			}
+		}
+
+		private string GetAppPath()
+		{
+			// Current application path
+			// TODO: Need to support all types of paths not only relative.
+			var appPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+			return appPath;
+		}
+
+		private string GetFilePath(string file)
+		{
+			var filePath = file;
+
+			if (File.Exists(filePath) == false)
+			{
+				filePath = Path.Combine(appPath.Value, filePath);
+
+				if (File.Exists(filePath) == false)
+				{
+					Console.WriteLine("Error: File not found.");
+					throw new FileNotFoundException("Unable to find file.", file);
+				}
+			}
+
+			return filePath;
 		}
 
 		/// <summary>
@@ -328,16 +351,6 @@
 				}
 			}
 		}
-
-		/// <summary>
-		/// Dynamic resource string.
-		/// </summary>
-		private const string DynamicResourceString = "{DynamicResource ";
-
-		/// <summary>
-		/// Static resource string.
-		/// </summary>
-		private const string StaticResourceString = "{StaticResource ";
 
 		/// <summary>
 		/// Find all used keys for resource.
