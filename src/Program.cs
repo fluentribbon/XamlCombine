@@ -21,26 +21,36 @@ namespace XamlCombine
         /// Main function.
         /// </summary>
         /// <param name="args">Command line args.</param>
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
-            var stopwatch = Stopwatch.StartNew();
+			try
+			{
+				var stopwatch = Stopwatch.StartNew();
 
-            // TODO: Add flags for some parameters.
-            if (args.Length == 2)
-            {
-				var combiner = new Combiner();
-                combiner.Combine(args[0], args[1]);
-            }
+				// TODO: Add flags for some parameters.
+				if (args.Length == 2)
+				{
+					var combiner = new Combiner();
+					combiner.Combine(args[0], args[1]);
+				}
 
-            // TODO: Add help output.
+				// TODO: Add help output.
 
-            stopwatch.Stop();
-            Console.WriteLine("Combine time: {0}", stopwatch.Elapsed);
+				stopwatch.Stop();
+				Console.WriteLine("Combine time: {0}", stopwatch.Elapsed);
 
-            if (Debugger.IsAttached)
-            {
-                Console.ReadLine();
-            }
+				if (Debugger.IsAttached)
+				{
+					Console.ReadLine();
+				}
+
+				return 0;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				return 1;
+			}
         }
     }
 }
