@@ -52,16 +52,14 @@
 			// Associate key with ResourceElement
 			var resourceElements = new Dictionary<string, ResourceElement>();
 
-			// List of readed resources
+			// List of read resources
 			var resourcesList = new List<ResourceElement>();
 
 			// For each resource file
 			for (var i = 0; i < resources.Length; i++)
 			{
 				var current = new XmlDocument();
-				var file = this.GetFilePath(resources[i]);
-
-				current.Load(file);
+				current.Load(this.GetFilePath(resources[i]));
 
 				// Write to console
 				//Console.WriteLine("Loading resource \"{0}\"", resources[i]);
