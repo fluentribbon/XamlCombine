@@ -203,7 +203,7 @@
 					var containsAll = true;
 					for (var j = 0; j < resourcesList[i].UsedKeys.Length; j++)
 					{
-						if (resourceElements.ContainsKey(resourcesList[i].UsedKeys[j]) 
+						if (resourceElements.ContainsKey(resourcesList[i].UsedKeys[j])
 							&& finalOrderList.Contains(resourceElements[resourcesList[i].UsedKeys[j]]) == false)
 						{
 							containsAll = false;
@@ -237,36 +237,7 @@
 			Console.WriteLine("Resource Dictionary generation completed.");
 
 			// Save result file
-			resultFile = Path.Combine(appPath.Value, resultFile);
-
-			try
-			{
-				var tempFile = resultFile + ".tmp";
-				finalDocument.Save(tempFile);
-
-				Console.WriteLine("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile);
-
-				if (File.Exists(resultFile) == false
-					|| File.ReadAllText(resultFile) != File.ReadAllText(tempFile))
-				{
-					File.Copy(tempFile, resultFile, true);
-
-					Console.WriteLine("Resource Dictionary saved to \"{0}\".", resultFile);
-				}
-				else
-				{
-					Console.WriteLine("New Resource Dictionary did not differ from existing file. No new file written.");
-				}
-
-				if (File.Exists(tempFile))
-				{
-					File.Delete(tempFile);
-				}
-			}
-			catch (Exception e)
-			{
-				throw new Exception("Error during Resource Dictionary saving: {0}", e);
-			}
+			WriteResultFile(Path.Combine(appPath.Value, resultFile), finalDocument);
 		}
 
 		private string GetAppPath()
@@ -396,6 +367,38 @@
 			}
 
 			return result.ToArray();
+		}
+
+		private static void WriteResultFile(string resultFile, XmlDocument finalDocument)
+		{
+			try
+			{
+				var tempFile = resultFile + ".tmp";
+				finalDocument.Save(tempFile);
+
+				Console.WriteLine("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile);
+
+				if (File.Exists(resultFile) == false
+					|| File.ReadAllText(resultFile) != File.ReadAllText(tempFile))
+				{
+					File.Copy(tempFile, resultFile, true);
+
+					Console.WriteLine("Resource Dictionary saved to \"{0}\".", resultFile);
+				}
+				else
+				{
+					Console.WriteLine("New Resource Dictionary did not differ from existing file. No new file written.");
+				}
+
+				if (File.Exists(tempFile))
+				{
+					File.Delete(tempFile);
+				}
+			}
+			catch (Exception e)
+			{
+				throw new Exception("Error during Resource Dictionary saving: {0}", e);
+			}
 		}
 	}
 }
