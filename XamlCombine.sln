@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22512.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlCombine", "XamlCombine.csproj", "{D33D75C4-AA91-4253-8CC0-00971EBF3D5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlCombine", "src\XamlCombine.csproj", "{D33D75C4-AA91-4253-8CC0-00971EBF3D5B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{A8D862CD-8367-4523-8920-2576C08F34A1}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
+		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
 Global
