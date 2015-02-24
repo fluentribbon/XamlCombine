@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics;
 	using System.Globalization;
 	using System.IO;
 	using System.Reflection;
@@ -33,8 +34,7 @@
 		/// <param name="resultFile">Result XAML filename.</param>
 		public void Combine(string sourceFile, string resultFile)
 		{
-			// Write to console
-			Console.WriteLine("Loading resources list from \"{0}\"", sourceFile);
+			Trace.WriteLine(string.Format("Loading resources list from \"{0}\"", sourceFile));
 
 			sourceFile = this.GetFilePath(sourceFile);
 
@@ -62,7 +62,7 @@
 				current.Load(this.GetFilePath(resources[i]));
 
 				// Write to console
-				//Console.WriteLine("Loading resource \"{0}\"", resources[i]);
+				Debug.WriteLine(string.Format("Loading resource \"{0}\"", resources[i]));
 
 				// Set and fix resource dictionary attributes
 				var root = current.DocumentElement;
@@ -184,8 +184,7 @@
 				{
 					finalOrderList.Add(resourcesList[i]);
 
-					// Write to console
-					//Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
+					Debug.WriteLine(string.Format("Adding resource \"{0}\"", resourcesList[i].Key));
 
 					resourcesList.RemoveAt(i);
 					i--;
@@ -214,8 +213,7 @@
 					{
 						finalOrderList.Add(resourcesList[i]);
 
-						// Write to console
-						//Console.WriteLine("Adding resource \"{0}\"", resourcesList[i].Key);
+						Debug.WriteLine(string.Format("Adding resource \"{0}\"", resourcesList[i].Key));
 
 						resourcesList.RemoveAt(i);
 						i--;
@@ -230,9 +228,6 @@
 			{
 				rootNode.AppendChild(finalOrderList[i].Element);
 			}
-
-			// Write to console
-			Console.WriteLine("Resource Dictionary generation completed.");
 
 			// Save result file
 			WriteResultFile(Path.Combine(appPath.Value, resultFile), finalDocument);
@@ -249,7 +244,7 @@
 
 		private string GetFilePath(string file)
 		{
-			var filePath = file;
+			var filePath = file; 
 
 			if (File.Exists(filePath) == false)
 			{
@@ -374,7 +369,7 @@
 				var tempFile = resultFile + ".tmp";
 				finalDocument.Save(tempFile);
 
-				Console.WriteLine("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile);
+				Trace.WriteLine(string.Format("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile));
 
 				if (File.Exists(resultFile) == false
 					|| File.ReadAllText(resultFile) != File.ReadAllText(tempFile))
