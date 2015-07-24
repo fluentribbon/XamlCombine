@@ -48,6 +48,7 @@ namespace XamlCombine
             }
             catch (Exception e)
             {
+                Trace.WriteLine(e);
                 Console.WriteLine(e);
                 return 1;
             }
