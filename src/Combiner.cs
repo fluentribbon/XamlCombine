@@ -365,7 +365,7 @@
         {
             try
             {
-                var tempFile = resultFile + ".tmp";
+                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
                 finalDocument.Save(tempFile);
 
                 Trace.WriteLine(string.Format("Comparing temp file \"{0}\" to \"{1}\"", tempFile, resultFile));
