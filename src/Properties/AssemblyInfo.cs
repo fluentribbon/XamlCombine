@@ -17,15 +17,14 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("XamlCombine")]
 [assembly: AssemblyDescription("Combines multiple XAML resource dictionarion in one.")]
-//[assembly: AssemblyCompany("http://rikker.ru")]
 [assembly: AssemblyCompany("https://github.com/fluentribbon/XamlCombine")]
 [assembly: AssemblyProduct("XamlCombine")]
-[assembly: AssemblyCopyright("Copyright © Rikker Serg 2012")]
+[assembly: AssemblyCopyright("Copyright © 2012 - 2017 Bastian Schmidt; Copyright © Rikker Serg 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.1")]
+[assembly: AssemblyFileVersion("1.0.1")]
 [assembly: AssemblyInformationalVersion("SRC")]
 
 [assembly: ComVisible(false)]
