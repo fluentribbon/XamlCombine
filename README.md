@@ -8,7 +8,7 @@ The original code was writting by [SableRaven](https://www.codeplex.com/site/use
 
 Description
 ===========
-Combines multiple XAML resource dictionaries in one. Replaces DynamicResources to StaticResources. And sort them in order of usage.
+Combines multiple XAML resource dictionaries into one and sort them in order of usage.
 
 Usage
 ===========
