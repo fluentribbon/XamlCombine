@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>XamlCombine</id>
+        <version>$Version$</version>
+        <title>XamlCombine</title>
+        <summary>Generates a single large xaml file from many smaller xaml files.</summary>
+        <description>Generates a single large xaml file from many smaller xaml files.</description>
+        <releaseNotes>
+            1.0.1:
+                - Improving protection against issues caused by concurrent invocation of tool
+                - Fixing file access exceptions during concurrent invocation of tool
+
+            1.0.0:
+                - Initial release
+        </releaseNotes>
+        <authors>batzen</authors>
+        <licenseUrl>https://raw.githubusercontent.com/Fluent.Ribbon/XamlCombine/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/Fluent.Ribbon/XamlCombine</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <tags>xaml combine generator</tags>
+    </metadata>
+    <files>
+        <file src="bin\Release\XamlCombine.exe" target="tools" />
+        <file src="bin\Release\XamlCombine.pdb" target="tools" />
+    </files>
+</package>
