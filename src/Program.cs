@@ -8,6 +8,11 @@ namespace XamlCombine
 {
     using System;
     using System.Diagnostics;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Threading;
 
     /// <summary>
     /// Represents simple console app to combine multiple XAML resource dictionaries in one.
@@ -30,8 +35,21 @@ namespace XamlCombine
                 // TODO: Add flags for some parameters.
                 if (args.Length == 2)
                 {
-                    var combiner = new Combiner();
-                    combiner.Combine(args[0], args[1]);
+                    var sourceFile = args[0];
+                    var resultFile = args[1];
+
+                    using (var mutex = Lock(resultFile))
+                    {
+                        try
+                        {
+                            var combiner = new Combiner();
+                            combiner.Combine(sourceFile, resultFile);
+                        }
+                        finally
+                        {
+                            mutex.ReleaseMutex();
+                        }
+                    }
                 }
 
                 // TODO: Add help output.
@@ -53,5 +71,34 @@ namespace XamlCombine
                 return 1;
             }
         }
+
+        private static Mutex Lock(string file)
+        {
+            var appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value;
+            var mutexName = $"Local\\{appGuid}_{GetMD5Hash(file)}";
+
+            var mutex = new Mutex(false, mutexName);
+
+            if (mutex.WaitOne(TimeSpan.FromSeconds(10)) == false)
+            {
+                throw new TimeoutException("Another instance of this application blocked the concurrent execution.");
+            }
+            
+            return mutex;
+        }
+
+        private static string GetMD5Hash(string textToHash)
+        {
+            if (string.IsNullOrEmpty(textToHash))
+            {
+                return string.Empty;
+            }
+
+            var md5 = new MD5CryptoServiceProvider();
+            var bytesToHash = Encoding.Default.GetBytes(textToHash);
+            var result = md5.ComputeHash(bytesToHash); 
+
+            return BitConverter.ToString(result); 
+        } 
     }
 }
