@@ -1,0 +1,1 @@
+nuget pack .\XamlCombine.nuspec -Version 1.0.1 -OutputDirectory .\bin\nuget
