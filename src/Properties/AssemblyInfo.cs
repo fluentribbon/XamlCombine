@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Combines multiple XAML resource dictionarion in one.")]
 [assembly: AssemblyCompany("https://github.com/fluentribbon/XamlCombine")]
 [assembly: AssemblyProduct("XamlCombine")]
-[assembly: AssemblyCopyright("Copyright © 2012 - 2017 Bastian Schmidt; Copyright © Rikker Serg 2012")]
+[assembly: AssemblyCopyright("Copyright © 2012 - 2018 Bastian Schmidt; Copyright © Rikker Serg 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
