@@ -1,3 +1,7 @@
+# Deprecation notice
+
+This project has been deprecated and superseeded by [XAMLTools](https://github.com/batzen/XAMLTools).
+
 XamlCombine
 ===========
 [![Build status](https://img.shields.io/appveyor/ci/batzen/xamlcombine.svg?style=flat-square)](https://ci.appveyor.com/project/batzen/xamlcombine)
